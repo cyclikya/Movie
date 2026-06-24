@@ -1,38 +1,10 @@
-const tokens = [];
+const { DataTypes } = require('sequelize');
+const sequelize = require('../db.js');
 
-module.exports = {
-  tokens,
+const Token = sequelize.define('Token', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    user: { type: DataTypes.INTEGER, allowNull: false },
+    refreshToken: { type: DataTypes.STRING, allowNull: false },
+});
 
-  create(token) {
-    tokens.push(token);
-    return token;
-  },
-
-  findByUser(userId) {
-    return tokens.find((token) => token.user === userId) || null;
-  },
-
-  findOne(query) {
-    return (
-      tokens.find(
-        (token) =>
-          (query.refreshToken && token.refreshToken === query.refreshToken) ||
-          (query.user && token.user === query.user)
-      ) || null
-    );
-  },
-
-  remove(query) {
-    const index = tokens.findIndex(
-      (token) =>
-        (query.refreshToken && token.refreshToken === query.refreshToken) ||
-        (query.user && token.user === query.user)
-    );
-
-    if (index === -1) {
-      return null;
-    }
-
-    return tokens.splice(index, 1)[0];
-  },
-};
+module.exports = Token;

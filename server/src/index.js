@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser')
 const router = require('./routrer/index.js')
+const sequelize = require('./db.js')
 require('dotenv').config();
 
 
@@ -14,10 +15,14 @@ app.use('/api', router)
 
 const start = async () => {
     try {
+        await sequelize.authenticate()
+        await sequelize.sync()
+        
+        console.log('DB connected')
         app.listen(PORT, () => console.log('Server running'))
     } catch (e) {
         console.log(e)
-    }  
+    }
 }
 
 start()
