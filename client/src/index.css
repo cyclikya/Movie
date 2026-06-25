@@ -1,12 +1,9 @@
-body {
-  margin: 0;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-}
+@import "tailwindcss";
 
-#root {
-  min-height: 100vh;
-}
-
-.app {
-  padding: 24px;
+@theme {
+  --color-bg: #0E0F13;
+  --color-surface: #15171D;
+  --color-card: #1C1F26;
+  --color-elevated: #23262E;
+  --color-accent: #E24B4A;
 }
