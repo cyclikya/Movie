@@ -1,7 +1,6 @@
-import { useAppSelector } from '@/app/hooks';
-import Hero from '@/features/movies/Hero';
-import MovieRow from '@/features/movies/MovieRow';
-import RegisterCta from '@/features/auth/RegisterCta';
+import { useAppSelector } from '@/shared/hooks/hooks';
+import { Hero, MovieRow } from '@/features/movies';
+import { RegisterCta } from '@/features/auth';
 
 function HomePage() {
     const user = useAppSelector((state) => state.auth.user);

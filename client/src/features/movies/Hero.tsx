@@ -1,3 +1,5 @@
+import { Button } from '@/shared/ui/button';
+
 type HeroProps = {
     title: string;
     year: string;
@@ -17,12 +19,12 @@ function Hero({ title, year, genre, rating, description }: HeroProps) {
             </div>
             <p className="max-w-xl text-sm text-gray-300">{description}</p>
             <div className="mt-1 flex gap-3">
-                <button className="rounded-lg bg-accent px-5 py-2 text-sm text-white">
+                <Button>
                     Смотреть трейлер
-                </button>
-                <button className="rounded-lg bg-card px-5 py-2 text-sm text-white">
+                </Button>
+                <Button variant="secondary">
                     В список
-                </button>
+                </Button>
             </div>
         </section>
     );

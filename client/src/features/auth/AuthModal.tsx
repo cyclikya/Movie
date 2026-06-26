@@ -1,20 +1,25 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import { useLoginMutation, useRegistrationMutation } from './authApi';
-import { setUser } from './authSlice';
-import { useAppDispatch } from '@/app/hooks';
-import type { AuthRequest } from './types';
+import { useLoginMutation, useRegistrationMutation } from './auth.api';
+import { setUser } from './auth.slice';
+import { useToast } from '@/shared/ui/toast-context';
+import { useAppDispatch } from '@/shared/hooks/hooks';
+import type { AuthRequest } from './auth.model';
+import { Button } from '@/shared/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog';
+import { Input } from '@/shared/ui/input';
 
 type AuthModalProps = {
-    onClose: () => void;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
 };
 
-function AuthModal({ onClose }: AuthModalProps) {
+function AuthModal({ open, onOpenChange }: AuthModalProps) {
     const [mode, setMode] = useState<'login' | 'register'>('login');
     const { register, handleSubmit } = useForm<AuthRequest>();
     const [login, { isLoading: loginLoading }] = useLoginMutation();
     const [registration, { isLoading: regLoading }] = useRegistrationMutation();
+    const { success, error } = useToast();
     const dispatch = useAppDispatch();
 
     const isLoading = loginLoading || regLoading;
@@ -25,60 +30,45 @@ function AuthModal({ onClose }: AuthModalProps) {
             const result = await action(data).unwrap();
             localStorage.setItem('token', result.accessToken);
             dispatch(setUser(result.user));
-            toast.success(mode === 'login' ? 'Вы вошли в аккаунт' : 'Регистрация прошла успешно');
-            onClose();
+            success(mode === 'login' ? 'Вы вошли в аккаунт' : 'Регистрация прошла успешно');
+            onOpenChange(false);
         } catch (e) {
             const err = e as { data?: { message?: string } };
-            toast.error(err.data?.message || 'Что-то пошло не так');
+            error(err.data?.message || 'Что-то пошло не так');
         }
     };
 
     return (
-        <div
-            onClick={onClose}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
-        >
-            <div
-                onClick={(e) => e.stopPropagation()}
-                className="w-80 rounded-xl bg-card p-6"
-            >
-                <div className="mb-5 flex gap-2">
-                    <button
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogTitle className="sr-only">Вход или регистрация</DialogTitle>
+
+                <div className="flex gap-2 pt-5">
+                    <Button 
+                        variant={mode === 'login' ? 'default' : 'secondary'}
                         onClick={() => setMode('login')}
-                        className={`flex-1 rounded-lg py-2 text-sm ${mode === 'login' ? 'bg-accent text-white' : 'bg-elevated text-gray-300'}`}
+                        className="flex-1"
                     >
                         Вход
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        variant={mode === 'register' ? 'default' : 'secondary'}
                         onClick={() => setMode('register')}
-                        className={`flex-1 rounded-lg py-2 text-sm ${mode === 'register' ? 'bg-accent text-white' : 'bg-elevated text-gray-300'}`}
+                        className="flex-1"
                     >
                         Регистрация
-                    </button>
+                    </Button>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-                    <input
-                        {...register('email')}
-                        placeholder="email"
-                        className="rounded-lg bg-elevated px-3 py-2 text-sm text-gray-200 placeholder-gray-500 outline-none"
-                    />
-                    <input
-                        {...register('password')}
-                        type="password"
-                        placeholder="пароль"
-                        className="rounded-lg bg-elevated px-3 py-2 text-sm text-gray-200 placeholder-gray-500 outline-none"
-                    />
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="rounded-lg bg-accent py-2 text-sm text-white disabled:opacity-60"
-                    >
+                    <Input {...register('email')} placeholder="email" />
+                    <Input {...register('password')} type="password" placeholder="пароль" />
+                    <Button type="submit" disabled={isLoading}>
                         {isLoading ? 'Подождите…' : mode === 'login' ? 'Войти' : 'Зарегистрироваться'}
-                    </button>
+                    </Button>
                 </form>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }
 

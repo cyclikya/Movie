@@ -1,5 +1,5 @@
 import MovieCard from './MovieCard';
-import type { Movie } from './types';
+import type { Movie } from './movies.model';
 
 const TEST_MOVIES: Movie[] = [
     { id: 1, title: 'Начало', year: 2010, rating: 8.8 },
