@@ -1,13 +1,11 @@
 import { useParams } from 'react-router-dom';
-import {
-    useGetByIdQuery,
-    useGetSimilarsQuery,
-    useGetStaffQuery,
-    useGetTrailerQuery,
-} from '@/features/movies/movies.api';
+import { useGetMoviePageQuery } from '@/features/movies/movies.api';
 import { useAddToListMutation } from '@/features/movies/userMovies.api';
+import { useMovieListInfo } from '@/features/movies/useMovieListInfo';
+import { getStatusRibbon } from '@/shared/lib/list-ribbon';
 import MovieRow from '@/features/movies/MovieRow';
 import Actors from '@/features/movies/Actors';
+import Reviews from '@/features/reviews/Reviews';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import {
@@ -18,22 +16,16 @@ import {
     MenubarItem,
 } from '@/shared/ui/menubar';
 import { useToast } from '@/shared/ui/toast-context';
-import Reviews from '@/features/reviews/Reviews';
-import { useMovieListInfo } from '@/features/movies/useMovieListInfo';
-import { getStatusRibbon } from '@/shared/lib/list-ribbon';
 
 function MoviePage() {
     const { id } = useParams();
     const filmId = Number(id);
-    const { data: movie, isLoading } = useGetByIdQuery(filmId, { skip: !id });
-    const { data: similars, isLoading: similarsLoading } = useGetSimilarsQuery(filmId, { skip: !id });
-    const { data: actors, isLoading: actorsLoading } = useGetStaffQuery(filmId, { skip: !id });
-    const { data: trailer } = useGetTrailerQuery(filmId, { skip: !id });
-    const listInfo = useMovieListInfo(filmId);
-    const listLabel = listInfo ? getStatusRibbon(listInfo.status)?.label ?? 'В список' : 'В список';
+    const { data, isLoading } = useGetMoviePageQuery(filmId, { skip: !id });
 
     const [addToList] = useAddToListMutation();
     const { success, error } = useToast();
+    const listInfo = useMovieListInfo(filmId);
+    const listLabel = listInfo ? getStatusRibbon(listInfo.status)?.label ?? 'В список' : 'В список';
 
     const handleAdd = async (status: string) => {
         try {
@@ -44,9 +36,11 @@ function MoviePage() {
         }
     };
 
-    if (isLoading || !movie) {
+    if (isLoading || !data) {
         return <div className="h-96 animate-pulse rounded-xl bg-elevated" />;
     }
+
+    const { movie, similars, actors, trailer } = data;
 
     return (
         <div>
@@ -84,15 +78,9 @@ function MoviePage() {
                                     {listLabel}
                                 </MenubarTrigger>
                                 <MenubarContent>
-                                    <MenubarItem onClick={() => handleAdd('planned')}>
-                                        Посмотрю {listInfo?.status === 'planned' && '✓'}
-                                    </MenubarItem>
-                                    <MenubarItem onClick={() => handleAdd('watching')}>
-                                        Смотрю {listInfo?.status === 'watching' && '✓'}
-                                    </MenubarItem>
-                                    <MenubarItem onClick={() => handleAdd('watched')}>
-                                        Посмотрел {listInfo?.status === 'watched' && '✓'}
-                                    </MenubarItem>
+                                    <MenubarItem onClick={() => handleAdd('planned')}>Посмотрю {listInfo?.status === 'planned' && '✓'}</MenubarItem>
+                                    <MenubarItem onClick={() => handleAdd('watching')}>Смотрю {listInfo?.status === 'watching' && '✓'}</MenubarItem>
+                                    <MenubarItem onClick={() => handleAdd('watched')}>Посмотрел {listInfo?.status === 'watched' && '✓'}</MenubarItem>
                                 </MenubarContent>
                             </MenubarMenu>
                         </Menubar>
@@ -108,8 +96,8 @@ function MoviePage() {
                 </div>
             </div>
 
-            <Actors actors={actors} isLoading={actorsLoading} />
-            <MovieRow title="Похожие фильмы" movies={similars} isLoading={similarsLoading} />
+            <Actors actors={actors} />
+            <MovieRow title="Похожие фильмы" movies={similars} />
             <Reviews kinopoiskId={filmId} />
         </div>
     );

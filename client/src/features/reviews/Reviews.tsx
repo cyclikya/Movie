@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import { useGetReviewsQuery, useAddReviewMutation } from './reviews.api';
 import { useGetFriendsQuery } from '@/features/friends/friends.api';
-import { useAppSelector } from '@/shared/hooks/hooks';
+import { useAuthUser } from '@/features/auth/auth.hooks';
 import { useToast } from '@/shared/ui/toast-context';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import type { Review } from './reviews.model';
 import { getAvatarColor } from '@/shared/lib/avatar-color';
 import { Avatar, AvatarFallback } from '@/shared/ui/avatar';
-import { useDispatch } from 'react-redux';
-import { userMoviesApi } from '@/features/movies/userMovies.api';
 
 function ReviewCard({ review }: { review: Review }) {
     return (
@@ -32,12 +30,11 @@ function ReviewCard({ review }: { review: Review }) {
 }
 
 function Reviews({ kinopoiskId }: { kinopoiskId: number }) {
-    const user = useAppSelector((s) => s.auth.user);
+    const user = useAuthUser();
     const { data: reviews = [] } = useGetReviewsQuery(kinopoiskId);
     const { data: friends = [] } = useGetFriendsQuery(undefined, { skip: !user });
     const [addReview, { isLoading }] = useAddReviewMutation();
     const { success, error } = useToast();
-    const dispatch = useDispatch();
 
 
     const [rating, setRating] = useState('8');
@@ -51,7 +48,6 @@ function Reviews({ kinopoiskId }: { kinopoiskId: number }) {
         try {
             await addReview({ kinopoiskId, rating: Number(rating), text }).unwrap();
 
-            dispatch(userMoviesApi.util.invalidateTags(['MyMovies']));
             setText('');
             success('Отзыв опубликован');
         } catch {

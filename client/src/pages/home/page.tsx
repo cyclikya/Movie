@@ -7,7 +7,7 @@ import RegisterCta from '@/features/auth/RegisterCta';
 const MONTHS = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
 
 function HomePage() {
-    const user = useAppSelector((state) => state.auth.user);
+    const user = useAppSelector((s) => s.auth.user); 
 
     const { data: popular, isLoading: popularLoading } = useGetPopularQuery();
     const now = new Date();

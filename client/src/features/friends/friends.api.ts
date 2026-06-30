@@ -1,17 +1,8 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { baseApi } from '@/shared/api/baseApi';
 
 type Friend = { id: number; email: string };
 
-export const friendsApi = createApi({
-    reducerPath: 'friendsApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:5001/api',
-        prepareHeaders: (headers) => {
-            const token = localStorage.getItem('token');
-            if (token) headers.set('Authorization', `Bearer ${token}`);
-            return headers;
-        },
-    }),
+export const friendsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getFriends: builder.query<Friend[], void>({
             query: () => '/friends',

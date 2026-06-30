@@ -13,15 +13,13 @@ function Hero({ movie }: HeroProps) {
         return <div className="h-60 animate-pulse rounded-xl bg-elevated" />;
     }
 
+    const openMovie = () => navigate(`/movie/${movie.id}`);
+
     return (
         <section
-            onClick={() => navigate(`/movie/${movie.id}`)}
-            className="relative flex h-60 cursor-pointer flex-col justify-end overflow-hidden rounded-xl p-6 transition hover:brightness-110"
-            style={{
-                backgroundImage: `url(${movie.cover})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-            }}
+            onClick={openMovie}
+            className="relative flex h-60 cursor-pointer flex-col justify-end overflow-hidden rounded-xl bg-cover bg-center p-6 transition hover:brightness-110"
+            style={{ backgroundImage: `url(${movie.cover})` }}
         >
             <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
             <div className="relative max-w-xl">

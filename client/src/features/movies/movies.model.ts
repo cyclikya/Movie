@@ -31,3 +31,16 @@ export type Actor = {
     role: string;
     photo: string;
 };
+
+export type MyMovie = {
+    kinopoiskId: number;
+    status: string;
+    rating: number | null;
+};
+
+export type MoviePage = {
+    movie: MovieDetails;
+    similars: Movie[];
+    actors: Actor[];
+    trailer: string | null;
+};

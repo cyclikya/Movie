@@ -1,4 +1,4 @@
-import { useAppSelector, useAppDispatch } from '@/shared/hooks/hooks';
+import { useAppDispatch } from '@/shared/hooks/hooks';
 import { useToast } from '@/shared/ui/toast-context';
 import { Button } from '@/shared/ui/button';
 import { Avatar, AvatarFallback } from '@/shared/ui/avatar';
@@ -7,6 +7,7 @@ import { logout } from '@/features/auth';
 import { NavLink, Link } from 'react-router-dom';
 import { AppRoutes } from '@/shared/constants/routes';
 import { getAvatarColor } from '@/shared/lib/avatar-color';
+import { useAuthUser } from '@/features/auth/auth.hooks';
 
 type HeaderProps = {
     onLoginClick: VoidFunction;
@@ -20,7 +21,7 @@ const NAV_LINKS = [
 ];
 
 function Header({ onLoginClick }: HeaderProps) {
-    const user = useAppSelector((state) => state.auth.user);
+    const user = useAuthUser();
     const { success } = useToast();
     const dispatch = useAppDispatch();
 

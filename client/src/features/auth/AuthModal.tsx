@@ -7,7 +7,7 @@ import { useAppDispatch } from '@/shared/hooks/hooks';
 import type { AuthRequest } from './auth.model';
 import { Button } from '@/shared/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog';
-import { Input } from '@/shared/ui/input';
+import FormInput from '@/shared/components/FormInput';
 
 type AuthModalProps = {
     open: boolean;
@@ -16,11 +16,14 @@ type AuthModalProps = {
 
 function AuthModal({ open, onOpenChange }: AuthModalProps) {
     const [mode, setMode] = useState<'login' | 'register'>('login');
-    const { register, handleSubmit } = useForm<AuthRequest>();
+    const { control, handleSubmit } = useForm<AuthRequest>();
     const [login, { isLoading: loginLoading }] = useLoginMutation();
     const [registration, { isLoading: regLoading }] = useRegistrationMutation();
     const { success, error } = useToast();
     const dispatch = useAppDispatch();
+
+    const showLogin = () => setMode('login');
+    const showRegister = () => setMode('register');
 
     const isLoading = loginLoading || regLoading;
 
@@ -44,16 +47,16 @@ function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 <DialogTitle className="sr-only">Вход или регистрация</DialogTitle>
 
                 <div className="flex gap-2 pt-5">
-                    <Button 
+                    <Button
                         variant={mode === 'login' ? 'default' : 'secondary'}
-                        onClick={() => setMode('login')}
+                        onClick={showLogin}
                         className="flex-1"
                     >
                         Вход
                     </Button>
                     <Button
-                        variant={mode === 'register' ? 'default' : 'secondary'}
-                        onClick={() => setMode('register')}
+                        variant={mode === 'login' ? 'secondary' : 'default'}
+                        onClick={showRegister}
                         className="flex-1"
                     >
                         Регистрация
@@ -61,8 +64,8 @@ function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-                    <Input {...register('email')} placeholder="email" />
-                    <Input {...register('password')} type="password" placeholder="пароль" />
+                        <FormInput name="email" control={control} placeholder="email" />
+                        <FormInput name="password" control={control} type="password" placeholder="пароль" />
                     <Button type="submit" disabled={isLoading}>
                         {isLoading ? 'Подождите…' : mode === 'login' ? 'Войти' : 'Зарегистрироваться'}
                     </Button>

@@ -1,6 +1,15 @@
 const movieService = require('../service/movie-service.js');
 
 class MovieController {
+    async getMoviePage(req, res) {
+        try {
+            const data = await movieService.getMoviePage(req.params.id);
+            return res.json(data);
+        } catch (e) {
+            return res.status(500).json({ message: e.message });
+        }
+    }
+
     async getPopular(req, res) {
         try {
             const data = await movieService.getPopular(req.query.page);

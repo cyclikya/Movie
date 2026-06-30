@@ -1,26 +1,16 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { baseApi } from '@/shared/api/baseApi';
+import type { MyMovie } from './movies.model';
+import { BaseApiTags } from '@/shared/api/tags';
 
-type MyMovie = { kinopoiskId: number; status: string; rating: number | null };
-
-export const userMoviesApi = createApi({
-    reducerPath: 'userMoviesApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:5001/api',
-        prepareHeaders: (headers) => {
-            const token = localStorage.getItem('token');
-            if (token) headers.set('Authorization', `Bearer ${token}`);
-            return headers;
-        },
-    }),
-    tagTypes: ['MyMovies'],
+export const userMoviesApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getMyList: builder.query<MyMovie[], void>({
             query: () => '/my-movies',
-            providesTags: ['MyMovies'],
+            providesTags: [BaseApiTags.MyMovies],
         }),
         addToList: builder.mutation<unknown, { kinopoiskId: number; status: string }>({
             query: (body) => ({ url: '/my-movies', method: 'POST', body }),
-            invalidatesTags: ['MyMovies'],
+            invalidatesTags: [BaseApiTags.MyMovies],
         }),
     }),
 });

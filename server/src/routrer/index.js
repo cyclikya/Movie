@@ -20,10 +20,11 @@ router.get('/users/search', authMiddleware, userController.searchUsers);
 router.get('/movies/popular', movieController.getPopular);
 router.get('/movies/premieres', movieController.getPremieres);
 router.get('/movies/search', movieController.search);
+router.get('/movies/:id/full', movieController.getMoviePage);
 router.get('/movies/:id/similars', movieController.getSimilars);
-router.get('/movies/:id', movieController.getById);
 router.get('/movies/:id/staff', movieController.getStaff);
 router.get('/movies/:id/videos', movieController.getVideos);
+router.get('/movies/:id', movieController.getById);
 
 // User movie list routes
 router.get('/my-movies', authMiddleware, userMovieController.getMy);
