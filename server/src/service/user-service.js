@@ -2,6 +2,7 @@ const UserModel = require('../models/user-model.js');
 const bcrypt = require('bcrypt');
 const UserDto = require('../dtos/user-dtos.js');
 const tokenService = require('./token-service.js');
+const { Op } = require('sequelize');
 
 class UserService {
     async registration(email, password) {
@@ -60,6 +61,16 @@ class UserService {
     async getAllUsers() {
         const users = await UserModel.findAll();
         return users;
+    }
+
+    async searchUsers(query, excludeUserId) {
+        return UserModel.findAll({
+            where: {
+                email: { [Op.iLike]: `%${query}%` },
+                id: { [Op.ne]: excludeUserId },
+            },
+            attributes: ['id', 'email'],
+        });
     }
 }
 
