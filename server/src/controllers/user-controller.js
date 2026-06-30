@@ -57,15 +57,6 @@ class UserController {
             return res.status(401).json({ message: e.message });
         }
     }
-
-    async searchUsers(req, res, next) {
-        try {
-            const users = await userService.searchUsers(req.query.q, req.user.id);
-            return res.json(users);
-        } catch (e) {
-            return res.status(400).json({ message: e.message });
-        }
-    }
 }
 
 module.exports = new UserController()
