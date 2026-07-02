@@ -14,7 +14,7 @@ function MovieCard({ movie, showRibbon = true }: MovieCardProps) {
 
     return (
         <Link to={`/movie/${movie.id}`} className="w-48 flex-none">
-            <div className="relative h-72 overflow-hidden rounded-lg bg-elevated">
+            <div className="relative h-72 overflow-hidden rounded-lg bg-secondary">
                 {ribbon && (
                     <div
                         className="absolute left-0 top-2 z-10 rounded-r-md px-2 py-0.5 text-xs font-medium text-white"
@@ -24,8 +24,15 @@ function MovieCard({ movie, showRibbon = true }: MovieCardProps) {
                         {info!.status === 'watched' && info!.rating ? ` · ${info!.rating}` : ''}
                     </div>
                 )}
-                <img src={movie.poster} alt={movie.title} className="h-full w-full object-cover" />
-                {movie.rating > 0 && (
+                    {movie.poster && !movie.poster.includes('no-poster') && (
+                        <img
+                            src={movie.poster}
+                            alt={movie.title}
+                            className="h-full w-full object-cover"
+                            onError={(e) => (e.currentTarget.style.display = 'none')}
+                        />
+                    )}                
+                    {movie.rating > 0 && (
                     <span className="absolute right-2 top-2 rounded bg-black/60 px-1.5 py-0.5 text-xs text-amber-300">
                         {movie.rating}
                     </span>

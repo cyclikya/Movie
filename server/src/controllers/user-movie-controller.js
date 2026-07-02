@@ -33,6 +33,17 @@ class UserMovieController {
             return res.status(400).json({ message: e.message });
         }
     }
+
+    async getMyFull(req, res) {
+        try {
+            const userId = req.user.id;
+            const { status } = req.query;
+            const list = await userMovieService.getMyListFull(userId, status);
+            return res.json(list);
+        } catch (e) {
+            return res.status(400).json({ message: e.message });
+        }
+    }
 }
 
 module.exports = new UserMovieController();

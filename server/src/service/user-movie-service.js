@@ -1,5 +1,6 @@
 const UserMovie = require('../models/user-movie-model.js');
 const Review = require('../models/review-model.js');
+const movieService = require('./movie-service.js');
 
 const ALLOWED_STATUSES = ['planned', 'watching', 'watched'];
 
@@ -33,6 +34,27 @@ class UserMovieService {
                 rating: review ? review.rating : null,
             };
         });
+    }
+    
+    async getMyListFull(userId, status) {
+        const list = await this.getMyList(userId, status);
+        const movies = await Promise.all(
+            list.map(async (item) => {
+                const details = await movieService.getById(item.kinopoiskId).catch(() => null);
+                if (!details) return null;
+                return {
+                    id: details.id,
+                    title: details.title,
+                    year: details.year,
+                    rating: details.ratingKp,
+                    poster: details.poster,
+                    cover: details.cover,
+                    status: item.status,
+                    userRating: item.rating,
+                };
+            }),
+        );
+        return movies.filter(Boolean);
     }
 }
 

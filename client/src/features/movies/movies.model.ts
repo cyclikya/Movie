@@ -44,3 +44,19 @@ export type MoviePage = {
     actors: Actor[];
     trailer: string | null;
 };
+
+export type MyMovieCard = Movie & {
+    status: 'planned' | 'watching' | 'watched';
+    userRating: number | null;
+};
+
+export type FilterOption = { id: number; name: string };
+
+export type MovieFilters = {
+    genres: number[];
+    countries: number[];
+    yearFrom: number;
+    yearTo: number;
+    ratingFrom: number;
+    ratingTo: number;
+};
