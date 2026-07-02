@@ -8,6 +8,8 @@ import { NavLink, Link } from 'react-router-dom';
 import { AppRoutes } from '@/shared/constants/routes';
 import { getAvatarColor } from '@/shared/lib/avatar-color';
 import { useAuthUser } from '@/features/auth/auth.hooks';
+import { useLogoutMutation } from '@/features/auth/auth.api';
+import { baseApi } from '@/shared/api/baseApi';
 
 type HeaderProps = {
     onLoginClick: VoidFunction;
@@ -24,9 +26,14 @@ function Header({ onLoginClick }: HeaderProps) {
     const user = useAuthUser();
     const { success } = useToast();
     const dispatch = useAppDispatch();
+    const [logoutMutation] = useLogoutMutation();
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        try {
+            await logoutMutation().unwrap();
+        } catch {/*ignore*/}
         dispatch(logout());
+        dispatch(baseApi.util.resetApiState());
         success('Вы вышли');
     };
 

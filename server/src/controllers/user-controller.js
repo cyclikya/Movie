@@ -66,6 +66,15 @@ class UserController {
             return res.status(400).json({ message: e.message });
         }
     }
+    
+    async getStats(req, res) {
+    try {
+        const stats = await userService.getStats(req.user.id);
+        return res.json(stats);
+    } catch (e) {
+        return res.status(400).json({ message: e.message });
+    }
+}
 }
 
 module.exports = new UserController()

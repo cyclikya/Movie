@@ -1,5 +1,5 @@
 import { baseApi } from '@/shared/api/baseApi';
-import type { Movie, MovieDetails, Actor, MoviePage} from './movies.model';
+import type { Movie, MovieDetails, Actor, MoviePage, FilterOption, MovieFilters } from './movies.model';
 
 export const moviesApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -24,6 +24,32 @@ export const moviesApi = baseApi.injectEndpoints({
         getTrailer: builder.query<string | null, number>({
             query: (id) => `/movies/${id}/videos`,
         }),
+        searchMovies: builder.query<Movie[], string>({
+            query: (q) => `/movies/search?q=${encodeURIComponent(q)}`,
+        }),
+        getPopularFilms: builder.query<Movie[], void>({
+            query: () => '/movies/films',
+        }),
+        getPopularSeries: builder.query<Movie[], void>({
+            query: () => '/movies/series',
+        }),
+        getFilters: builder.query<{ genres: FilterOption[]; countries: FilterOption[] }, void>({
+            query: () => '/movies/filters',
+        }),
+        discover: builder.query<Movie[], MovieFilters & { keyword?: string; order?: string }>({
+            query: (f) => {
+                const q = new URLSearchParams();
+                f.genres.forEach((id) => q.append('genres', String(id)));
+                f.countries.forEach((id) => q.append('countries', String(id)));
+                q.set('yearFrom', String(f.yearFrom));
+                q.set('yearTo', String(f.yearTo));
+                q.set('ratingFrom', String(f.ratingFrom));
+                q.set('ratingTo', String(f.ratingTo));
+                if (f.keyword) q.set('keyword', f.keyword);
+                q.set('order', f.order ?? 'RATING');
+                return `/movies/discover?${q.toString()}`;
+            },
+        }),
     }),
 });
 
@@ -35,4 +61,9 @@ export const {
     useGetSimilarsQuery,
     useGetStaffQuery,
     useGetTrailerQuery,
+    useSearchMoviesQuery,
+    useGetPopularFilmsQuery,
+    useGetPopularSeriesQuery,
+    useGetFiltersQuery,
+    useDiscoverQuery,
 } = moviesApi;

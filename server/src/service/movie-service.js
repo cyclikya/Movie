@@ -20,10 +20,22 @@ function toMovie(item) {
         year: item.year ?? 0,
         rating: item.ratingKinopoisk ?? 0,
         poster: item.posterUrlPreview,
-        cover: item.coverUrl || item.posterUrl || item.posterUrlPreview,
+        cover: item.coverUrl ?? '',
         genre: item.genres?.[0]?.genre ?? '',
         description: item.description ?? '',
     };
+}
+
+const ALLOWED_TYPES = ['FILM', 'TV_SERIES', 'MINI_SERIES'];
+const BLOCKED_GENRES = ['концерт', 'музыка', 'реальное ТВ', 'ток-шоу', 'новости', 'церемония', 'игра'];
+
+function isRealMovie(item) {
+    const poster = item.posterUrlPreview || item.posterUrl;
+    const hasPoster = Boolean(poster) && !poster.includes('no-poster');
+    const okType = ALLOWED_TYPES.includes(item.type);
+    const genres = (item.genres || []).map((g) => g.genre);
+    const okGenre = !genres.some((g) => BLOCKED_GENRES.includes(g));
+    return hasPoster && okType && okGenre;
 }
 
 function toDetails(f) {
@@ -68,6 +80,16 @@ class MovieService {
         return data.items.map(toMovie);
     }
 
+    async getPopularFilms(page = 1) {
+        const data = await kinopoiskFetch(`/api/v2.2/films/collections?type=TOP_POPULAR_MOVIES&page=${page}`);
+        return data.items.map(toMovie);
+    }
+
+    async getPopularSeries(page = 1) {
+        const data = await kinopoiskFetch(`/api/v2.2/films/collections?type=POPULAR_SERIES&page=${page}`);
+        return data.items.map(toMovie);
+    }
+
     async getPremieres(year, month) {
         const data = await kinopoiskFetch(`/api/v2.2/films/premieres?year=${year}&month=${month}`);
         return data.items.filter((i) => i.year === Number(year)).map(toMovie);
@@ -75,7 +97,7 @@ class MovieService {
 
     async search(keyword, page = 1) {
         const data = await kinopoiskFetch(`/api/v2.1/films/search-by-keyword?keyword=${encodeURIComponent(keyword)}&page=${page}`);
-        return data.films.map(toMovie);
+        return data.films.filter(isRealMovie).map(toMovie);
     }
 
     async getById(id) {
@@ -96,6 +118,37 @@ class MovieService {
     async getVideos(id) {
         const data = await kinopoiskFetch(`/api/v2.2/films/${id}/videos`);
         return data.items?.[0]?.url ?? null;
+    }
+
+    async getFilters() {
+        const data = await kinopoiskFetch('/api/v2.2/films/filters');
+        return {
+            genres: data.genres.filter((g) => g.genre).map((g) => ({ id: g.id, name: g.genre })),
+            countries: data.countries.filter((c) => c.country).map((c) => ({ id: c.id, name: c.country })),
+        };
+    }
+
+    async discover(params) {
+        const {
+            genres = [], countries = [],
+            yearFrom, yearTo, ratingFrom, ratingTo,
+            keyword, type = 'ALL', order = 'RATING', page = 1,
+        } = params;
+
+        const q = new URLSearchParams();
+        genres.forEach((id) => q.append('genres', id));
+        countries.forEach((id) => q.append('countries', id));
+        if (yearFrom) q.set('yearFrom', yearFrom);
+        if (yearTo) q.set('yearTo', yearTo);
+        if (ratingFrom) q.set('ratingFrom', ratingFrom);
+        if (ratingTo) q.set('ratingTo', ratingTo);
+        if (keyword) q.set('keyword', keyword);
+        q.set('type', type);
+        q.set('order', order);
+        q.set('page', page);
+
+        const data = await kinopoiskFetch(`/api/v2.2/films?${q.toString()}`);
+        return data.items.filter(isRealMovie).map(toMovie);
     }
 }
 

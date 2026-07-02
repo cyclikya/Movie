@@ -16,8 +16,8 @@ function HomePage() {
         month: MONTHS[now.getMonth()],
     });
 
-    const heroMovie = popular?.[0];
-    const restPopular = popular?.slice(1);
+    const heroMovie = popular?.find((m) => m.cover);
+    const restPopular = popular?.filter((m) => m.id !== heroMovie?.id);
 
     return (
         <div>

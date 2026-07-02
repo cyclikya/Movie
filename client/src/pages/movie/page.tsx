@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useGetMoviePageQuery } from '@/features/movies/movies.api';
 import { useAddToListMutation } from '@/features/movies/userMovies.api';
@@ -16,6 +17,27 @@ import {
     MenubarItem,
 } from '@/shared/ui/menubar';
 import { useToast } from '@/shared/ui/toast-context';
+
+function Poster({ src, title }: { src: string; title: string }) {
+    const [broken, setBroken] = useState(!src || src.includes('no-poster'));
+
+    if (broken) {
+        return (
+            <div className="flex h-[340px] w-[225px] flex-none items-center justify-center rounded-xl bg-elevated text-5xl font-medium text-gray-500">
+                {title[0]?.toUpperCase() ?? '?'}
+            </div>
+        );
+    }
+
+    return (
+        <img
+            src={src}
+            alt={title}
+            onError={() => setBroken(true)}
+            className="h-[340px] w-[225px] flex-none rounded-xl object-cover"
+        />
+    );
+}
 
 function MoviePage() {
     const { id } = useParams();
@@ -45,11 +67,7 @@ function MoviePage() {
     return (
         <div>
             <div className="flex gap-6">
-                <img
-                    src={movie.poster}
-                    alt={movie.title}
-                    className="h-[340px] w-[225px] flex-none rounded-xl object-cover"
-                />
+                <Poster src={movie.poster} title={movie.title} />
                 <div className="flex-1">
                     <h1 className="text-2xl font-medium text-white">
                         {movie.title} <span className="font-normal text-gray-500">({movie.year})</span>

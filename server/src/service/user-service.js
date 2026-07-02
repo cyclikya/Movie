@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 const UserDto = require('../dtos/user-dtos.js');
 const tokenService = require('./token-service.js');
 const { Op } = require('sequelize');
+const friendService = require('./friend-service.js');
+const userMovieService = require('./user-movie-service.js');
 
 class UserService {
     async registration(email, password) {
@@ -72,6 +74,22 @@ class UserService {
             attributes: ['id', 'email'],
         });
     }
+
+    async getStats(userId) {
+    const [friends, subscribers, list] = await Promise.all([
+        friendService.getFriends(userId),
+        friendService.getSubscribers(userId),
+        userMovieService.getMyList(userId),
+    ]);
+    const count = (status) => list.filter((m) => m.status === status).length;
+    return {
+        friends: friends.length,
+        subscribers: subscribers.length,
+        planned: count('planned'),
+        watching: count('watching'),
+        watched: count('watched'),
+    };
+}
 }
 
 module.exports = new UserService()
